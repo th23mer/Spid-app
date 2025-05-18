@@ -18,6 +18,7 @@ export default function ProfileStep({ form, onChange, onSuccess, token }) {
   const [locationError, setLocationError] = useState('');
   const [locationData, setLocationData] = useState(null);
   const [errors, setErrors] = useState({
+    // Prospection fields
     zone: '',
     immeuble: '',
     blocImmeuble: '',
@@ -33,26 +34,31 @@ export default function ProfileStep({ form, onChange, onSuccess, token }) {
     const newErrors = {};
     let isValid = true;
 
+    // User fields validation
+    // Nom validation (optional)
+    // Prenom validation (optional)
+
+    // Prospection fields validation
     // Zone validation (required)
-    if (!form.zone.trim()) {
+    if (!form.zone?.trim()) {
       newErrors.zone = 'La zone est requise';
       isValid = false;
     }
 
     // Immeuble validation (required)
-    if (!form.immeuble.trim()) {
+    if (!form.immeuble?.trim()) {
       newErrors.immeuble = "L'immeuble est requis";
       isValid = false;
     }
 
     // Nom Client validation (required)
-    if (!form.nomClient.trim()) {
+    if (!form.nomClient?.trim()) {
       newErrors.nomClient = 'Le nom du client est requis';
       isValid = false;
     }
 
     // Numéro Contact validation (numeric, required)
-    if (!form.numContact.trim()) {
+    if (!form.numContact?.trim()) {
       newErrors.numContact = 'Le numéro de contact est requis';
       isValid = false;
     } else if (!/^\d+$/.test(form.numContact) || form.numContact.length < 8) {
@@ -109,6 +115,7 @@ export default function ProfileStep({ form, onChange, onSuccess, token }) {
         setLocationShared(true);
       },
       (error) => {
+        let errorMessage = 'Erreur lors de la récupération de la position';
         switch(error.code) {
           case error.PERMISSION_DENIED:
             errorMessage = 'Vous avez refusé la demande de géolocalisation';
@@ -123,50 +130,66 @@ export default function ProfileStep({ form, onChange, onSuccess, token }) {
         setLocationError(errorMessage);
         setLocationShared(false);
         setLocationLoading(false);
-      },
-      { 
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
       }
     );
   };
   
   // Handle form submission with validation
   const handleSubmit = async () => {
+    if (!validate()) return;
+    
+    setLoading(true);
     setApiError('');
-    if (validate()) {
-      try {
-        setLoading(true);
-        // Prepare data with location if shared
-        const dataToSubmit = {
-          ...form,
-          locationShared,
-          location: locationShared ? locationData : null
-        };
-        await axios.post('/api/profile', dataToSubmit, {
-          headers: { 
-            Authorization: `Bearer ${token}` 
-          } 
-        });
-        setLoading(false);
-        onSuccess();
-      } catch (e) {
-        setLoading(false);
-        setApiError(e.response?.data?.message || 'Échec de la sauvegarde du profil');
+    
+    try {
+      // Prepare the data to send - now split between User and Prospection models
+      const profileData = { 
+        // User data
+        nom: form.nom,
+        prenom: form.prenom,
+        
+        // Prospection data
+        zone: form.zone,
+        immeuble: form.immeuble,
+        blocImmeuble: form.blocImmeuble,
+        appartement: form.appartement,
+        nomClient: form.nomClient,
+        numContact: form.numContact,
+        resultatProspection: form.resultatProspection
+      };
+      
+      // Add location data if shared
+      if (locationShared && locationData) {
+        profileData.location = locationData;
       }
+      
+      // Send profile data to backend
+      const response = await axios.post(
+        'http://localhost:5000/api/profile',
+        profileData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      setLoading(false);
+      onSuccess(response.data.user);
+    } catch (error) {
+      setLoading(false);
+      setApiError(error.response?.data?.message || 'Une erreur est survenue lors de la sauvegarde du profil');
     }
   };
 
   return (
     <Fade in={true} timeout={800}>
-      <Box component="form" noValidate autoComplete="off" sx={{ pb: 1 }}>
+      <Box>
         <Typography 
           variant="h4" 
-          gutterBottom 
-          align="center" 
+          align="center"
           sx={{ 
-            mb: 1,
+            mb: 1, 
             fontWeight: 700,
             background: 'linear-gradient(90deg,rgb(105, 11, 11),rgb(219, 16, 50))',
             WebkitBackgroundClip: 'text',
@@ -175,14 +198,30 @@ export default function ProfileStep({ form, onChange, onSuccess, token }) {
         >
           Profil Client
         </Typography>
-
-        <Typography align="center" color="text.secondary" sx={{ mb: 4 }}>
-          Complétez vos informations personnelles
+        
+        <Typography 
+          align="center" 
+          color="text.secondary" 
+          sx={{ mb: 4 }}
+        >
+          Veuillez remplir les informations du client
         </Typography>
+        
+        {apiError && (
+          <Alert severity="error" sx={{ mb: 3, borderRadius: '12px' }}>
+            {apiError}
+          </Alert>
+        )}
+        
+        <Grid container spacing={2.5}>
 
-        {apiError && <Alert severity="error" sx={{ mb: 3 }}>{apiError}</Alert>}
-
-        <Grid container spacing={2}>
+          
+          {/* Prospection Information Section */}
+          <Grid item xs={12}>
+            <Typography variant="h6" color="primary" sx={{ mt: 2, mb: 1 }}>
+              Information de Prospection
+            </Typography>
+          </Grid>
           <Grid item xs={12}>
             <TextField
               label="Zone"
@@ -201,7 +240,7 @@ export default function ProfileStep({ form, onChange, onSuccess, token }) {
             />
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12}>
             <TextField
               label="Immeuble"
               value={form.immeuble}
@@ -221,7 +260,7 @@ export default function ProfileStep({ form, onChange, onSuccess, token }) {
           
           <Grid item xs={12} sm={6}>
             <TextField
-              label="Bloc"
+              label="Bloc Immeuble"
               value={form.blocImmeuble}
               onChange={e => handleChange('blocImmeuble', e.target.value)}
               error={Boolean(errors.blocImmeuble)}
@@ -229,27 +268,20 @@ export default function ProfileStep({ form, onChange, onSuccess, token }) {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <ApartmentOutlinedIcon color="primary" />
+                    <HomeOutlinedIcon color="primary" />
                   </InputAdornment>
                 ),
               }}
             />
           </Grid>
           
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={6}>
             <TextField
               label="Appartement"
               value={form.appartement}
               onChange={e => handleChange('appartement', e.target.value)}
               error={Boolean(errors.appartement)}
               helperText={errors.appartement}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <HomeOutlinedIcon color="primary" />
-                  </InputAdornment>
-                ),
-              }}
             />
           </Grid>
           

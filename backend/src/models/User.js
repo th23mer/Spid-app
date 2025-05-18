@@ -1,20 +1,23 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const userSchema = new mongoose.Schema({
-  phone: { type: String, required: true, unique: true },
-  zone: String,
-  immeuble: String,
-  blocImmeuble: String,
-  appartement: String,
-  nomClient: String,
-  numContact: String,
-  locationShared: { type: Boolean, default: false },
-  location: {
-    latitude: Number,
-    longitude: Number,
-    accuracy: Number,
-    timestamp: Date
+const User = sequelize.define('User', {
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    primaryKey: true
+  },
+  nom: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  prenom: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
+}, {
+  timestamps: true
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = User;

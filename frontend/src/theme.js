@@ -34,7 +34,7 @@ const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: '16px'
+          // borderRadius: '16px'
         }
       }
     },

@@ -1,12 +1,38 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const otpSchema = new mongoose.Schema({
-  phone: { type: String, required: true },
-  code: { type: String, required: true },
-  expiresAt: { type: Date, required: true }
+const Otp = sequelize.define('Otp', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    references: {
+      model: 'Users',
+      key: 'phone'
+    }
+  },
+  code: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  expiresAt: {
+    type: DataTypes.DATE,
+    allowNull: false
+  }
+}, {
+  timestamps: true,
+  indexes: [
+    {
+      fields: ['phone']
+    },
+    {
+      fields: ['expiresAt']
+    }
+  ]
 });
 
-// Automatically delete OTP after expiration
-otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
-
-module.exports = mongoose.model('Otp', otpSchema);
+module.exports = Otp;
