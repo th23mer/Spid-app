@@ -292,18 +292,18 @@ const AdminDashboard = ({ onLogout }) => {
         {/* Top Performers */}
         <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
           <EmojiEventsIcon sx={{ mr: 1 }} />
-          Top Vendeurs
+          Top Vente
         </Typography>
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={12} md={6}>
             <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
               <CardContent>
-                <Typography variant="subtitle1" gutterBottom>Meilleurs Vendeurs</Typography>
+                <Typography variant="subtitle1" gutterBottom>Meilleurs Utilisateurs</Typography>
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Vendeur</TableCell>
+                        <TableCell>Utilisateur</TableCell>
                         <TableCell align="right">Prospections</TableCell>
                         <TableCell align="right">Ventes</TableCell>
                         <TableCell align="right">Taux</TableCell>
@@ -338,7 +338,7 @@ const AdminDashboard = ({ onLogout }) => {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"

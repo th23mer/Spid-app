@@ -208,11 +208,11 @@ const UserManagement = ({ users: propUsers, onRefresh }) => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 3 }}>
+        {/* <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
           <PersonIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-          User Management
-        </Typography>
+          Gestion des utilisateurs
+        </Typography> */}
         <Box>
           <Button 
             variant="contained" 
@@ -220,7 +220,7 @@ const UserManagement = ({ users: propUsers, onRefresh }) => {
             onClick={() => handleOpenDialog('add')}
             sx={{ mr: 1 }}
           >
-            Add User
+            ajouter un utilisateur
           </Button>
           <IconButton onClick={fetchUsers} color="primary">
             <RefreshIcon />

@@ -101,8 +101,8 @@ const HomePage = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            borderRadius: '0 0 20px 20px',
-            background: 'linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(240, 245, 255, 0.95))',
+            borderRadius: '0 0 10px 10px',
+            background: 'linear-gradient(to right, rgba(252, 230, 230, 0.95), rgba(247, 226, 226, 0.96))',
             backdropFilter: 'blur(12px)',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
             borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
@@ -135,7 +135,8 @@ const HomePage = () => {
                     color: 'primary.dark'
                   }}
                 >
-                  {userData.nom} {userData.prenom}
+                  {/* {userData.nom} */}
+                   {userData.prenom}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <PhoneIcon 
